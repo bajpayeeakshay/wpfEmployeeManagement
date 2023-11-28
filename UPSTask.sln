@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UPSTask", "UPSTask.csproj", "{B135123C-78F4-4A19-8157-073895FF2311}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPSTask.Services", "UPSTask.Services\UPSTask.Services.csproj", "{F88AE404-2DB0-4212-B8A4-D38652454C28}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B135123C-78F4-4A19-8157-073895FF2311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B135123C-78F4-4A19-8157-073895FF2311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B135123C-78F4-4A19-8157-073895FF2311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B135123C-78F4-4A19-8157-073895FF2311}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F88AE404-2DB0-4212-B8A4-D38652454C28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F88AE404-2DB0-4212-B8A4-D38652454C28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F88AE404-2DB0-4212-B8A4-D38652454C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F88AE404-2DB0-4212-B8A4-D38652454C28}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A163B7A9-E151-4077-AC52-C040BFE83D3E}
+	EndGlobalSection
+EndGlobal

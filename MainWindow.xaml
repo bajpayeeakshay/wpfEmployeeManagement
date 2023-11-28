@@ -1,0 +1,538 @@
+﻿<Window x:Class="UPSTask.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Width="1250" 
+        Height="1000"
+        MinWidth="1250" 
+        MinHeight="1000" 
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen" 
+        AllowsTransparency="True" 
+        ResizeMode="NoResize"
+        Background="Transparent">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
+    </Window.Resources>
+    
+    <Border 
+        CornerRadius="25" 
+        Background="WhiteSmoke" 
+        MouseDown="Border_MouseDown" 
+        MouseLeftButtonDown="Border_MouseLeftButtonDown" 
+        HorizontalAlignment="Left" 
+        VerticalAlignment="Top"
+        Width="1250" 
+        Height="900">
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!--Menu-->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Button Margin="20 28 0 35" Style="{StaticResource topButton}">
+                    <Icon:PackIconMaterial 
+                        Kind="Menu" 
+                        Width ="15" 
+                        Height="15"/>
+                </Button>
+
+                <Border Grid.Row="1" Background="DeepSkyBlue" CornerRadius="0 50 0 30">
+                    <DockPanel>
+                        <TextBlock Text="Emp Search"
+                                   Foreground="White"
+                                   FontSize="30"
+                                   FontWeight="SemiBold"
+                                   DockPanel.Dock="Top"
+                                   TextAlignment="Left"
+                                   Margin="5, 25, 0, 10"/>
+                        <Separator Margin="25" 
+                                   DockPanel.Dock="Top" 
+                                   Height="0.8"
+                                   Background="DarkBlue"/>
+
+                        <Menu Height="450"
+                            Background="Transparent" VerticalAlignment="Top">
+                            <Menu.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </Menu.ItemsPanel>
+
+                            <MenuItem Header="Search" 
+                                      Icon="{Icon:BootstrapIcons Kind=File}"
+                                      Template="{StaticResource Menu_SubMenu_Template}"
+                                      Click="ResetButton_Click"/>
+                            <MenuItem Header="Export    >"
+                                      Template="{StaticResource Menu_SubMenu_Template}">
+
+                                <MenuItem Header="To PDF" 
+                                          Template="{StaticResource Item_Template}"
+                                          Click="ExportCSV_Click"/>
+
+                                <MenuItem Header="To CSV" 
+                                          Template="{StaticResource Item_Template}"
+                                          Click="ExportCSV_Click"/>
+                            </MenuItem>
+                            <MenuItem Header="Close" 
+                                Icon="{Icon:BootstrapIcons Kind=File}"
+                                Template="{StaticResource Menu_SubMenu_Template}"
+                                Click="CloseButton_Click"/>
+                        </Menu>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        
+            <!--Right Section-->
+            <Grid Grid.Column="1" Margin="30 20 20 20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Width="300" HorizontalAlignment="Left">
+                    <TextBlock Margin="20 0" 
+                               VerticalAlignment="Center" 
+                               Foreground="LightGray"
+                               IsHitTestVisible="False"
+                               Panel.ZIndex="1"
+                               Text="Enter EmployeeId here..."
+                               Visibility="{Binding ElementName=txtSearch,Path=Text.IsEmpty, Converter={StaticResource BoolToVis}}"/>
+                    <TextBox x:Name="txtSearch" 
+                             Style="{StaticResource textboxSearch}"
+                             PreviewTextInput="NumberValidationTextBox"/>
+                    <Button Height="30" 
+                            Width="30" 
+                            Click="FindByIdButton_Click"
+                            Margin="0 0 10 0"
+                            Foreground="LightGray"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right">
+                        <Icon:PackIconMaterial Kind="SearchWeb" 
+                            Height="15" 
+                            Width="15" 
+                            VerticalAlignment="Center"
+                            Foreground="LightGray"
+                            HorizontalAlignment="Right"
+                            />
+                    </Button>
+                    
+                </Grid>
+                <TextBlock Text="Employees" 
+                           Grid.Row="1" 
+                           FontSize="32"
+                           FontWeight="SemiBold"
+                           Margin="0 20 0 0"
+                           HorizontalAlignment="Left"
+                           Foreground="DeepSkyBlue"/>
+
+                <Separator Height="1" Grid.Row="2" Background="White" Margin="0 -1 0 10"/>
+
+                <DataGrid Style="{DynamicResource DataGridStyle1}" 
+                          CellStyle="{DynamicResource DataGridCellStyle1}" 
+                          ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                          RowStyle="{DynamicResource DataGridRowStyle1}" 
+                          Grid.Row="3"
+                          x:Name="employeeDetailsDataGrid">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="#" 
+                        IsReadOnly="True"
+                        Width="1">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border 
+                                            Width="25" 
+                                            Height="25" 
+                                            CornerRadius="50"
+                                            Margin="0 0 10 0"
+                                            Background="Red">
+                                        </Border>
+                                        <TextBlock Text="..." 
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="White"
+                                                   Margin="0 0 0 1"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="EmployeeId" 
+                                            IsReadOnly="True" 
+                                            CanUserResize="False"
+                                            Width="100"
+                                            Binding="{Binding Id}"/>
+                        <DataGridTextColumn Header="Name" 
+                                            IsReadOnly="True" 
+                                            Width="200" 
+                                            Binding="{Binding Name}"/>
+                        <DataGridTextColumn Header="Email Address" 
+                                            IsReadOnly="True" 
+                                            Width="300"
+                                            Binding="{Binding Email}"/>
+                        <DataGridTextColumn Header="Gender" 
+                                            IsReadOnly="True" 
+                                            Width="100"
+                                            Binding="{Binding Gender}"/>
+                        <DataGridTextColumn Header="Status" 
+                                            IsReadOnly="True" 
+                                            Width="*"
+                                            Binding="{Binding Status}"/>
+                        <DataGridTemplateColumn Header="Delete" 
+                                                IsReadOnly="True"
+                                                Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <!--<Button Style="{StaticResource gridUpdateButton}">
+                                            <Icon:PackIconMaterial 
+                                                Kind="PencilOutline" 
+                                                Style="{StaticResource gridButtonIcon}"/>
+                                        </Button>-->
+                                        <Button Style="{StaticResource gridDeleteButton}">
+                                            <Icon:PackIconMaterial 
+                                                Kind="DeleteOutline"
+                                                Style="{StaticResource gridButtonIcon}"/>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Label 
+                    Name ="NoRecordsFound" 
+                    Content="No Records Found" 
+                    FontSize="55" 
+                    Margin="78,191,616,0" 
+                    VerticalAlignment="Top" 
+                    Height="99" 
+                    Visibility="Hidden"
+                    Grid.Row="3"/>
+
+                <TextBlock 
+                    Name="ApiResponse" 
+                    Text="" 
+                    Foreground="Black" 
+                    FontWeight="Medium"
+                    FontSize="14" 
+                    Height="80"
+                    Padding="10 20 10 10"
+                    TextWrapping="Wrap"
+                    TextAlignment="Left"
+                    Grid.Row="4"
+                    IsEnabled="False"/>
+                <TextBlock 
+                    HorizontalAlignment="Left"
+                    Name="FileSavePath" 
+                    Text="" 
+                    Padding="10 20 10 10"
+                    Foreground="Black" 
+                    FontWeight="SemiBold"
+                    FontSize="14"
+                    TextAlignment="Left"
+                    Grid.Row="4"
+                    IsEnabled="False"/>
+
+                <Border Grid.Row="6" 
+                        HorizontalAlignment="Right" 
+                        BorderBrush="#dee4ec" 
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        Padding="5"
+                        Background="Transparent"
+                        Margin="0 10 10 10">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource paginationButton}" HorizontalAlignment="Right">
+                            <Icon:PackIconMaterial Kind="ChevronLeft" Style="{StaticResource paginationButtonIcon}"/>
+                        </Button>
+                        <Rectangle Width="1" Fill="DarkGray" Margin="3 7"/>
+                        <Button Style="{StaticResource paginationButton}" HorizontalAlignment="Right">
+                            <Icon:PackIconMaterial Kind="ChevronRight" Style="{StaticResource paginationButtonIcon}"/>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+        
+        
+
+
+
+            <!--<Grid Height="990" VerticalAlignment="Top">
+            --><!--App Title--><!--
+            <TextBlock 
+                Text="UPS Users App" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top" 
+                Margin="41,5,0,0" 
+                FontSize="16" 
+                FontWeight="DemiBold" 
+                Foreground="#4880FF" 
+                RenderTransformOrigin="0.166,-16.535"/>
+            <Icon:PackIconMaterial 
+                Kind="Message" 
+                Margin="13,14,0,0" 
+                Width="14" Height="14" 
+                Foreground="#FF9D00"/>
+            <Icon:PackIconMaterial 
+                Kind="Message" 
+                Margin="10,6,0,0" 
+                Width="14" 
+                Height="14" 
+                Foreground="#4880FF"/>
+
+            <StackPanel 
+                Orientation="Horizontal" 
+                Grid.Column="1" 
+                HorizontalAlignment="Right" 
+                Margin="0 2 5 0" 
+                RenderTransformOrigin="0.479,0.427" 
+                Height="40" 
+                VerticalAlignment="Top">
+                <TextBlock 
+                    Text="Hey, you are viewing User Details" 
+                    Foreground="#374655" 
+                    FontSize="14" 
+                    Height="20" 
+                    Width="266"/>
+                <Button 
+                    Name="CloseButton" 
+                    Content="Close" 
+                    Click="CloseButton_Click" 
+                    Background="#4880FF" 
+                    Foreground="White" 
+                    Width="50"/>
+            </StackPanel>
+
+            --><!--Right Section--><!--
+            <Border 
+                Background="#4880FF" 
+                CornerRadius="0 0 25 0" 
+                Margin="790,50,5,93">
+                <WrapPanel 
+                    HorizontalAlignment="Center" 
+                    Margin="10 50 10 10" 
+                    Orientation="Vertical">
+                    <StackPanel 
+                        Orientation="Horizontal" 
+                        Margin="5">
+                        <Label 
+                            Margin="10 5 10 0" 
+                            Foreground="White" 
+                            Width="50">Id</Label>
+                        <Label
+                            Name="IdVal" 
+                            Foreground="White" 
+                            Width="225"/>
+                    </StackPanel>
+                    <StackPanel 
+                        Orientation="Horizontal" 
+                        Margin="5">
+                        <Label 
+                            Margin="10 5 10 0" 
+                            Foreground="White" 
+                            Width="50">Name</Label>
+                        <TextBox 
+                            Name="NameVal" 
+                            Background="White" 
+                            FontWeight="SemiBold" 
+                            Width="300"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <Label Margin="10 5 10 0" Foreground="White" Width="50">Email</Label>
+                        <TextBox Name="EmailVal" Background="White" FontWeight="SemiBold" Width="300"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <Label Margin="10 5 10 0" Foreground="White" Width="50">Gender</Label>
+                        <ComboBox 
+                            Name="GenderComboBox" 
+                            Background="White" 
+                            FontWeight="SemiBold" 
+                            Width="300" 
+                            IsSynchronizedWithCurrentItem="True"/>
+
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <Label Margin="10 5 10 0" Foreground="White" Width="50">Status</Label>
+                        <ComboBox 
+                            Name="StatusComboBox" 
+                            Background="White" 
+                            FontWeight="SemiBold" 
+                            Width="300" 
+                            IsSynchronizedWithCurrentItem="True"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="40">
+                        <Button 
+                        Width ="100" 
+                        Name ="Update"
+                        Margin="20"
+                        Content="Update" 
+                        Background="White" 
+                        Foreground="Blue" 
+                        Click="btnUpdateClick"/>
+                        <Button 
+                        x:Name ="Delete"
+                        Width ="100" 
+                        Margin="20"
+                        Content="Delete" 
+                        Background="Red" 
+                        Foreground="White"
+                        Click="btnDeleteClick"/>
+                    </StackPanel>
+                    <TextBlock 
+                        Name="ApiResponse" 
+                        Text="" 
+                        Foreground="White" 
+                        FontWeight="Medium"
+                        FontSize="14" 
+                        Height="80"
+                        TextWrapping="Wrap"
+                        TextAlignment="Left"
+                        IsEnabled="False"/>
+                </WrapPanel>
+            </Border>
+
+            <DataGrid 
+                x:Name="UserDataGrid" 
+                Margin="13,93,472,474" 
+                AutoGenerateColumns="False" 
+                FontWeight="Regular" 
+                SelectionChanged="UserDataGrid_SelectionChanged">
+
+                 --><!--FontColor and Style of Column--><!--
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Background" Value="#4880FF"/>
+                        <Setter Property ="Foreground" Value="White"/>
+                        <Setter Property="BorderBrush" Value="White"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,2"/>
+
+                    </Style>
+                </DataGrid.Resources>
+                 --><!--ColumnHeader Text and Bindings--><!--
+                <DataGrid.Columns >
+                    <DataGridTextColumn Header="Id" Binding="{Binding id}" Width="75" Foreground="#4880FF" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Name" Binding="{Binding name}" Width="200" Foreground="#4880FF" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Email" Binding="{Binding email}" Width="200" Foreground="#4880FF" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Gender" Binding="{Binding gender}" Width="75" Foreground="#4880FF" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Status" Binding="{Binding status}" Width="*" Foreground="#4880FF" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid >
+
+            <StackPanel Orientation="Horizontal" Margin="26,0,548,407" Height="40" VerticalAlignment="Bottom">
+                <Button 
+                    Height="40"  
+                    VerticalAlignment="Bottom" 
+                    Name="btnPrev" 
+                    Width="60" 
+                    Click="btnPrev_Click" 
+                    Opacity="0.75" 
+                    Content="&lt;"/>
+                <TextBox 
+                    Name="PageField"
+                    Height="40" 
+                    VerticalAlignment="Bottom"
+                    Width="100"
+                    TextAlignment="Center"
+                    Text="{Binding CurentPage, BindsDirectlyToSource=True, FallbackValue=1, TargetNullValue=1}"
+                    TextChanged="TextBox_TextChanged"
+                    IsEnabled="True" AcceptsTab="True" MaxLength="3" SelectionOpacity="-1"/>
+                <Button 
+                    Height="40"
+                    HorizontalAlignment="Right" 
+                    Name="btnNext" 
+                    VerticalAlignment="Bottom" 
+                    Width="60" 
+                    Content="&gt;"
+                    Click="btnNext_Click" 
+                    Opacity="0.75"/>
+                <Button Height="40" 
+                    Name="Export" 
+                    VerticalAlignment="Bottom" 
+                    Width="80" 
+                    Margin="165 0 0 0"
+                    FontWeight="SemiBold"
+                    Content="Export"
+                    Click="Export_Click" 
+                    Opacity="0.75"/>
+            </StackPanel>
+            <TextBlock 
+                Name="FileSavePath" Text="" 
+                Foreground="Red" 
+                FontWeight="SemiBold"
+                FontSize="14"
+                TextAlignment="Left"
+                Panel.ZIndex="999999999"
+                Margin="13,661,472,281" 
+                IsEnabled="False"
+                />
+
+            <StackPanel 
+                Orientation="Horizontal" 
+                Height="40" 
+                HorizontalAlignment="Left" 
+                RenderTransformOrigin="0.48,-10.9" 
+                Margin="13,616,0,334" 
+                Width="600"/>
+            <Label 
+                Name ="NoRecordsFound" 
+                Content="No Records Found" 
+                FontSize="55" 
+                Margin="78,191,616,0" 
+                VerticalAlignment="Top" 
+                Height="99" 
+                Visibility="Hidden"/>
+            <Label 
+                Margin="25,48,1147,0" 
+                Foreground="#4880FF"
+                Height="40" 
+                FontWeight="UltraBold"
+                VerticalAlignment="Top"
+                VerticalContentAlignment="Center"
+                Content="Find By Id"/>
+            <TextBox 
+                    x:Name="SearchByUserId"
+                    Margin="115,45,900,0" 
+                    Text="" 
+                    Height="40"
+                    TextWrapping="Wrap" 
+                    TextAlignment="Center"
+                    VerticalAlignment="Top" 
+                    />
+            <Button 
+                    x:Name="FindByIdButton" 
+                    Width="85" 
+                    Height="35"
+                    FontWeight="SemiBold"
+                    Content="Find"
+                    Click="FindByIdButton_Click" 
+                    Opacity="0.75" Margin="375,45,778,900"/>
+            <Button 
+                    x:Name="Reset" 
+                    Width="85" 
+                    Height="35"
+                    FontWeight="SemiBold"
+                    Content="Reset"
+                    Click="ResetButton_Click" 
+                    Opacity="0.75" Margin="475,45,648,900"/>
+
+        </Grid>-->
+    </Border>
+</Window>
