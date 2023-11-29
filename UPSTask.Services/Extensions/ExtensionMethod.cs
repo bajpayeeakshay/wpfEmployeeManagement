@@ -6,7 +6,7 @@ namespace UPSTask.ExtensionMethods
 {
     public static class ExtensionMethod
     {
-        public static DataTable ToDataTable<T>(this IList<T> data)
+        public static DataTable ToDataTable<T>(this IEnumerable<T> data)
         {
             PropertyDescriptorCollection props =
             TypeDescriptor.GetProperties(typeof(T));

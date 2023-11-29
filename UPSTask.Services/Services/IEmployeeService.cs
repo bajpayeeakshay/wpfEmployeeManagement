@@ -6,8 +6,12 @@ namespace UPSTask.Services.Services
 {
     public interface IEmployeeService
     {
-        public Task<IEnumerable<UserGridModel>?> GetuserGridModelAsync();
+        public Task<RequestResult<IEnumerable<EmployeeGridModel>?>> GetEmployeeGridModelAsync(int? pageNumber);
 
-        public Task<UserGridModel?> GetUserGridModelAsyncByUserId(int userId);
+        public Task<RequestResult<IEnumerable<EmployeeGridModel>?>> GetEmployeeGridModelAsyncByEmployeeId(string value, string? field);
+
+        public Task<RequestResult<bool>> DeleteEmployeeAsync(int employeeId);
+
+        public RequestResult<bool> ExportPDF(string filePath, IEnumerable<EmployeeGridModel> employeeGrid);
     }
 }
