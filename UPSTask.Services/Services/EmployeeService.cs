@@ -8,22 +8,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using UPSTask.ExtensionMethods;
+using System.Linq;
 
 namespace UPSTask.Services.Services
 {
     public class EmployeeService : IEmployeeService
     {
-        private const string URL = "https://gorest.co.in/public/v2/";
-        private const string API_TOKEN = "0bf7fb56e6a27cbcadc402fc2fce8e3aa9ac2b40d4190698eb4e8df9284e2023";
-
         public async Task<RequestResult<IEnumerable<EmployeeGridModel>?>> GetEmployeeGridModelAsync(int? pageNumber)
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(URL);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", API_TOKEN);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.SetupHttpClient();
                 HttpResponseMessage response = client.GetAsync($"users?page={pageNumber ?? 1}").Result;
 
                 if (response.IsSuccessStatusCode)
@@ -49,22 +44,10 @@ namespace UPSTask.Services.Services
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(URL);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", API_TOKEN);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                HttpResponseMessage response;
-
-                if(field == null)
-                {
-                    response = client.GetAsync($"users/{value}").Result;
-                }
-                else
-                {
-                    response = client.GetAsync($"users?{field.ToLower()}={value}").Result;
-                }
+                client.SetupHttpClient();
+                string endpoint = field == null ? $"users/{value}" : $"users?{field.ToLower()}={value}";
+                HttpResponseMessage response = client.GetAsync(endpoint).Result;
                 
-
                 if (response.IsSuccessStatusCode)
                 {
                     var responseResultString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -90,10 +73,7 @@ namespace UPSTask.Services.Services
             {
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = new Uri(URL);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", API_TOKEN);
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.SetupHttpClient();
                     HttpResponseMessage response = await client.DeleteAsync($"users/{Convert.ToInt32(employeeId.ToString())}").ConfigureAwait(false);
 
                     if(response.IsSuccessStatusCode)
@@ -114,39 +94,21 @@ namespace UPSTask.Services.Services
 
         public RequestResult<bool> ExportPDF(string filePath, IEnumerable<EmployeeGridModel> employeeGrid)
         {
-            // Create the CSV file to which grid data will be exported.
-            StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write));
-
             try
             {
-                DataTable dt = employeeGrid.ToDataTable<EmployeeGridModel>();
-                int iColCount = dt.Columns.Count;
-                for (int i = 0; i < iColCount; i++)
+                using (StreamWriter sw = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
                 {
-                    sw.Write(dt.Columns[i]);
-                    if (i < iColCount - 1)
+                    DataTable dt = employeeGrid.ToDataTable<EmployeeGridModel>();
+
+                    // Write header
+                    sw.WriteLine(string.Join(",", dt.Columns.Cast<DataColumn>().Select(col => col.ColumnName)));
+
+                    // Write rows
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        sw.Write(",");
+                        sw.WriteLine(string.Join(",", dr.ItemArray.Select(value => value.ToString())));
                     }
                 }
-                sw.Write(sw.NewLine);
-                // Now write all the rows.
-                foreach (DataRow dr in dt.Rows)
-                {
-                    for (int i = 0; i < iColCount; i++)
-                    {
-                        if (!Convert.IsDBNull(dr[i]))
-                        {
-                            sw.Write(dr[i].ToString());
-                        }
-                        if (i < iColCount - 1)
-                        {
-                            sw.Write(System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator);
-                        }
-                    }
-                    sw.Write(sw.NewLine);
-                }
-                sw.Close();
 
                 return RequestResult.Success(true);
             }

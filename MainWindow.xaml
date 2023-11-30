@@ -38,14 +38,6 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
-                <Button Margin="20 28 0 35" Style="{StaticResource topButton}">
-                    <Icon:PackIconMaterial 
-                        Kind="Menu" 
-                        Width ="15" 
-                        Height="15"/>
-                </Button>
-
                 <Border Grid.Row="1" Background="DeepSkyBlue" CornerRadius="0 50 0 30">
                     <DockPanel>
                         <TextBlock Text="Emp Search"
@@ -110,19 +102,21 @@
                               HorizontalAlignment="Left"
                               IsEditable="True"
                               IsReadOnly="True"
-                              Text="--Select Here--"
                               Height="37.5"
+                              SelectionChanged="SearchFieldSelectionChanged"
                               Style="{StaticResource comboBoxSearch}">
                         <ComboBoxItem Content="Name"/>
                         <ComboBoxItem Content="Id"/>
                     </ComboBox>
                     <TextBlock Margin="20 0 0 0" 
                                 HorizontalAlignment="Left"
+                               Name="ComboBoxTextBlock"
                                 VerticalAlignment="Center" 
+                               Background="Transparent"
                                 Foreground="DarkGray"
                                 IsHitTestVisible="False"
                                 Panel.ZIndex="1"
-                                Text="Select Field..."
+                                Text="---  Select Here  ---"
                                 DataContext="{Binding ElementName=SearchField,Path=SelectedItem}"
                                 Style="{StaticResource ComboBoxSelectOverlay}"/>
                     <TextBlock Margin="20 0 150 0" 

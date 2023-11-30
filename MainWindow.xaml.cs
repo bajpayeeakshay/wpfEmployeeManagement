@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Linq;
 
 namespace UPSTask
 {
@@ -66,12 +67,14 @@ namespace UPSTask
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            ResetFields();
             Close();
         }
 
         private void btnPrev_Click(object sender, RoutedEventArgs e)
         {
-            if(CurrentPage > 1)
+            ResetFields();
+            if (CurrentPage > 1)
             {
                 CurrentPage -= 1;
                 var userData = _employeeService.GetEmployeeGridModelAsync(CurrentPage).Result;
@@ -81,6 +84,7 @@ namespace UPSTask
 
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
+            ResetFields();
             CurrentPage += 1;
             var userData = _employeeService.GetEmployeeGridModelAsync(CurrentPage).Result;
             employeeDetailsDataGrid.ItemsSource = userData.GetResult();
@@ -89,6 +93,7 @@ namespace UPSTask
         private void ExportCSV_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveFileDialogPath = new SaveFileDialog();
+            ResetFields();
 
             saveFileDialogPath.Filter = "csv files (*.csv)|*.csv|All files (*.*)|*.*";
             saveFileDialogPath.FilterIndex = 2;
@@ -124,7 +129,7 @@ namespace UPSTask
             }
             else
             {
-                txtSearch.Text = string.Empty;
+                ResetFields();
                 var employeeData = _employeeService.GetEmployeeGridModelAsync(CurrentPage).Result;
                 employeeDetailsDataGrid.ItemsSource = employeeData.GetResult();
                 employeeDetailsDataGrid.Visibility = Visibility.Visible;
@@ -144,15 +149,14 @@ namespace UPSTask
                     NoRecordsFound.Visibility = Visibility.Hidden;
                     employeeDetailsDataGrid.ItemsSource = employeeData.GetResult();
                     employeeDetailsDataGrid.Visibility = Visibility.Visible;
-                    txtSearch.Text = null;
                 }
                 else
                 {
                     NoRecordsFound.Visibility = Visibility.Visible;
                     employeeDetailsDataGrid.ItemsSource = null;
                     employeeDetailsDataGrid.Visibility = Visibility.Hidden;
-                    txtSearch.Text = null;
                 }
+                ResetFields();
             }));
         }
 
@@ -161,12 +165,14 @@ namespace UPSTask
             ComboBoxItem typeItem = (ComboBoxItem)SearchField.SelectedItem;
             string selectedValue = typeItem.Content.ToString();
 
-            var data = await _employeeService.GetEmployeeGridModelAsyncByEmployeeId(txtSearch.Text, selectedValue);
+            var result = await _employeeService.GetEmployeeGridModelAsyncByEmployeeId(txtSearch.Text, selectedValue);
+            ResetFields();
             this.Dispatcher.Invoke((Action)(() =>
             {
-                if (data != null)
+                var data = result.GetResult();
+                if (data != null && data.Any() && data.Count() > 0)
                 {
-                    employeeDetailsDataGrid.ItemsSource = data.GetResult();
+                    employeeDetailsDataGrid.ItemsSource = data;
                     employeeDetailsDataGrid.Visibility = Visibility.Visible;
                     NoRecordsFound.Visibility = Visibility.Hidden;
                 }
@@ -183,6 +189,7 @@ namespace UPSTask
         {
             EmployeeGridModel selectedEmployeeModel = (EmployeeGridModel)employeeDetailsDataGrid.SelectedItem;
             var result = await _employeeService.DeleteEmployeeAsync(selectedEmployeeModel.Id);
+            ResetFields();
 
             if (result.IsSuccess)
             {
@@ -205,12 +212,44 @@ namespace UPSTask
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             ComboBoxItem typeItem = (ComboBoxItem)SearchField.SelectedItem;
-            string selectedValue = typeItem.Content.ToString();
-
-            if(selectedValue != "Name")
+            
+            if(typeItem != null)
             {
-                Regex regex = new Regex("[^0-9]+");
+                var selectedValue = typeItem.Content;
+
+                if (selectedValue.ToString() == "Name")
+                {
+                    Regex regex = new Regex("/^[A-Za-z]+$/");
+                    e.Handled = regex.IsMatch(e.Text);
+                }
+                else
+                {
+                    Regex regex = new Regex("^[0-9]+$");
+                    e.Handled = regex.IsMatch(e.Text);
+                }
+            }
+            else
+            {
+                Regex regex = new Regex("^[0-9]+$");
                 e.Handled = regex.IsMatch(e.Text);
+            }
+        }
+
+        private void ResetFields()
+        {
+            txtSearch.Text = null;
+            ApiResponse.Text = null;
+            FileSavePath.Text = null;
+            SearchField.SelectedItem = null;
+        }
+
+        private void SearchFieldSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBoxItem typeItem = (ComboBoxItem)SearchField.SelectedItem;
+            if(typeItem != null)
+            {
+                var selectedItem = typeItem.Content.ToString();
+                ComboBoxTextBlock.Text = selectedItem;
             }
         }
     }
