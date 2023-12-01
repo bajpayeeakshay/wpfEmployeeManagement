@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using UPSTask.Model;
+﻿using UPSTask.Model;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System;
@@ -14,27 +13,29 @@ namespace UPSTask.Services.Services
 {
     public class EmployeeService : IEmployeeService
     {
+        private HttpClient _httpClient;
+        public EmployeeService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
         public async Task<RequestResult<IEnumerable<EmployeeGridModel>?>> GetEmployeeGridModelAsync(int? pageNumber)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.SetupHttpClient();
-                HttpResponseMessage response = client.GetAsync($"users?page={pageNumber ?? 1}").Result;
+                HttpResponseMessage response = _httpClient.GetAsync($"users?page={pageNumber ?? 1}").Result;
 
                 if (response.IsSuccessStatusCode)
                 {
                     var responseResultString = await response.Content.ReadAsStringAsync();
 
-                    try
-                    {
-                        var responseResult = JsonConvert.DeserializeObject<IEnumerable<EmployeeGridModel>>(responseResultString);
-                        return RequestResult.Success(responseResult);
-                    }
-                    catch (Exception ex)
-                    {
-                        return RequestResult.Fail<IEnumerable<EmployeeGridModel>?>(new RequestError(ex.Message));
-                    }
+                    var responseResult = JsonConvert.DeserializeObject<IEnumerable<EmployeeGridModel>>(responseResultString);
+                    return RequestResult.Success(responseResult);
                 }
+            }
+            catch(Exception ex)
+            {
+                return RequestResult.Fail<IEnumerable<EmployeeGridModel>?>(new RequestError(ex.Message));
             }
 
             return RequestResult.Fail<IEnumerable<EmployeeGridModel>?>(new RequestError("No Result Found"));
@@ -42,26 +43,22 @@ namespace UPSTask.Services.Services
 
         public async Task<RequestResult<IEnumerable<EmployeeGridModel>?>> GetEmployeeGridModelAsyncByEmployeeId(string value, string? field)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.SetupHttpClient();
                 string endpoint = field == null ? $"users/{value}" : $"users?{field.ToLower()}={value}";
-                HttpResponseMessage response = client.GetAsync(endpoint).Result;
-                
+                HttpResponseMessage response = _httpClient.GetAsync(endpoint).Result;
+
                 if (response.IsSuccessStatusCode)
                 {
                     var responseResultString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-                    try
-                    {
-                        var responseResult = JsonConvert.DeserializeObject<IEnumerable<EmployeeGridModel>>(responseResultString);
-                        return RequestResult.Success(responseResult);
-                    }
-                    catch (Exception ex)
-                    {
-                        return RequestResult.Fail<IEnumerable<EmployeeGridModel>?>(new RequestError(ex.Message));
-                    }
+                    var responseResult = JsonConvert.DeserializeObject<IEnumerable<EmployeeGridModel>>(responseResultString);
+                    return RequestResult.Success(responseResult);
                 }
+            }
+            catch (Exception ex)
+            {
+                return RequestResult.Fail<IEnumerable<EmployeeGridModel>?>(new RequestError(ex.Message));
             }
 
             return RequestResult.Fail<IEnumerable<EmployeeGridModel>?>(new RequestError("No Result Found"));
@@ -71,22 +68,18 @@ namespace UPSTask.Services.Services
         {
             try
             {
-                using (var client = new HttpClient())
-                {
-                    client.SetupHttpClient();
-                    HttpResponseMessage response = await client.DeleteAsync($"users/{Convert.ToInt32(employeeId.ToString())}").ConfigureAwait(false);
+                HttpResponseMessage response = await _httpClient.DeleteAsync($"users/{Convert.ToInt32(employeeId.ToString())}").ConfigureAwait(false);
 
-                    if(response.IsSuccessStatusCode)
-                    {
-                        return RequestResult.Success(true);
-                    }
-                    else
-                    {
-                        return RequestResult.Fail<bool>(new RequestError(response.ReasonPhrase));
-                    }
+                if (response.IsSuccessStatusCode)
+                {
+                    return RequestResult.Success(true);
+                }
+                else
+                {
+                    return RequestResult.Fail<bool>(new RequestError(response.ReasonPhrase));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return RequestResult.Fail<bool>(new RequestError(ex.Message));
             }

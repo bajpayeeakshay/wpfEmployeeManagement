@@ -50,12 +50,12 @@ namespace UPSTask.Services
 
     public class RequestError
     {
-        public RequestError(string eror)
+        public RequestError(string errorVal)
         {
-            error = error;
+            error = errorVal;
         }
 
-        public string error { get; }
+        public string error { get; } = string.Empty;
 
         public override string ToString()
         {
