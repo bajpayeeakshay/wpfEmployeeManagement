@@ -8,18 +8,13 @@ using System.ComponentModel;
 using System.IO;
 using UPSTask.Services.Services;
 using UPSTask.Model;
-using UPSTask.ExtensionMethods;
 using System.Text.RegularExpressions;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Linq;
 
 namespace UPSTask
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private bool IsMaximised = false;
